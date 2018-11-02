@@ -89,7 +89,7 @@ function myloglog(logx, logy, title, text)
     p12 = annotate!(p12, 0.5Δx, 0.65Δy, @sprintf "a = %.2f" a)
     p12 = annotate!(p12, 0.5Δx, 0.5Δy, @sprintf "b = %.2f" b)
     p12 = annotate!(p12, 0.5Δx, 0.35Δy, @sprintf "R² = %.2f" R²)
-    p12 = annotate!(p12, 0.5Δx, 0.2Δy, "# of samples = $n")
+    p12 = annotate!(p12, 0.5Δx, 0.2Δy, "# of samples = $(length(logx))")
 
     # plot all of them
     l = @layout [a{.1h}; grid(2,2)]

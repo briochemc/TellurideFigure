@@ -17,7 +17,7 @@ function make_lognormal(;n = 10000, m = 1, v = 1)
 end
 
 function make_lognormal_DFe_and_FeT(;n = 10000, m_FeT = 50  , v_FeT = 800,
-                                               m_DFe =  1.5, v_DFe =  0.75)
+                                                m_DFe =  1.5, v_DFe =   0.75)
     FeT = make_lognormal(n = n, m = m_FeT, v = v_FeT)
     DFe = make_lognormal(n = n, m = m_DFe, v = v_DFe)
     ivalid = findall(DFe .≤ FeT)
@@ -26,7 +26,7 @@ function make_lognormal_DFe_and_FeT(;n = 10000, m_FeT = 50  , v_FeT = 800,
 end
 
 function make_lognormal_DFe_and_PFe(;n = 10000, m_PFe = 50  , v_PFe = 800,
-                                                 m_DFe =  1.5, v_DFe =  0.75)
+                                                m_DFe =  1.5, v_DFe =   0.75)
     PFe = make_lognormal(n = n, m = m_PFe, v = v_PFe)
     DFe = make_lognormal(n = n, m = m_DFe, v = v_DFe)
     return DFe, PFe

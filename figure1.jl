@@ -1,7 +1,4 @@
-
-
-
-function make_uniform_FeT_and_DFe(;n = 10000, max_FeT = 100, max_DFe = 3)
+function make_uniform_DFe_and_FeT(;n = 10000, max_FeT = 100, max_DFe = 3)
     DFe = max_DFe * rand(n)
     FeT = max_FeT * rand(n)
     ivalid = findall(DFe .≤ FeT)
@@ -9,20 +6,38 @@ function make_uniform_FeT_and_DFe(;n = 10000, max_FeT = 100, max_DFe = 3)
     return DFe, FeT
 end
 
-function make_lognormal_FeT_and_DFe(;n = 10000, m_FeT = 50  , v_FeT = 800,
+function make_lognormal(;n = 10000, m = 1, v = 1)
+    # convert arithmetic mean and variance to log mean and log std
+    μ = log(m / sqrt(1 + v / m^2))
+    σ = sqrt(log(1 + v / m^2))
+    return exp.(μ .+ σ * randn(n))
+end
+
+function make_lognormal_DFe_and_FeT(;n = 10000, m_FeT = 50  , v_FeT = 800,
                                                m_DFe =  1.5, v_DFe =  0.75)
-    μ_FeT = log(m_FeT / sqrt(1 + v_FeT / m_FeT^2))
-    σ_FeT = sqrt(log(1 + v_FeT / m_FeT^2))
-    μ_DFe = log(m_DFe / sqrt(1 + v_DFe / m_DFe^2))
-    σ_DFe = sqrt(log(1 + v_DFe / m_DFe^2))
-    DFe = exp.(μ_DFe .+ σ_DFe * randn(n))
-    FeT = exp.(μ_FeT .+ σ_FeT * randn(n))
+    FeT = make_lognormal(n = n, m = m_FeT, v = v_FeT)
+    DFe = make_lognormal(n = n, m = m_DFe, v = v_DFe)
     ivalid = findall(DFe .≤ FeT)
     DFe, FeT = DFe[ivalid], FeT[ivalid]
     return DFe, FeT
 end
 
+function make_lognormal_DFe_and_PFe(;n = 10000, m_PFe = 50  , v_PFe = 800,
+                                                 m_DFe =  1.5, v_DFe =  0.75)
+    PFe = make_lognormal(n = n, m = m_PFe, v = v_PFe)
+    DFe = make_lognormal(n = n, m = m_DFe, v = v_DFe)
+    return DFe, PFe
+end
 
+function logreg(logx, logy)
+    # If logy = a logx + b
+    # then logy = A [a b]ᵀ with A = [logx ones(length(logx))]
+    A = [logx ones(length(logx))]
+    # so
+    ab = A \ logy
+    a, b = ab[1], ab[2]
+    return a, b
+end
 
 function myloglog(logx, logy)
     x_lim = (floor(minimum(logx)), ceil(maximum(logx)))
@@ -43,6 +58,9 @@ function myloglog(logx, logy)
         xlim = x_lim, ylim = y_lim, legend=nothing,
         xticks = (x_ticks, x_tick_labels), yticks = (y_ticks, y_tick_labels))
 
+    a, b = logreg(logx, logy)
+    p21 = plot!(p21, collect(x_lim), a * collect(x_lim) .+ b)
+
     # side and top histograms
     p22 = histogram(logy, bin = 100, orientation=:horizontal,
         yticks = (y_ticks, no_y_tick_labels), ylim = y_lim, legend=nothing,
@@ -58,34 +76,36 @@ function myloglog(logx, logy)
     return plot(p11, p12, p21, p22, link=:all, layout=(2,2))
 end
 
-function logreg(logx, logy)
-    # If logy = a logx + b
-    # then logy = A [a b]ᵀ with A = [logx ones(length(logx))]
-    A = [logx ones(length(logx))]
-    # so
-    ab = A \ logy
-    a, b = ab[1], ab[2]
-    return a, b
-end
 
 using Plots
 gr(size = (600, 600))
 n = 10000 # number of samples
 
 # Plot as N. Meskhidze
-DFe, FeT = make_uniform_FeT_and_DFe()
+DFe, FeT = make_uniform_DFe_and_FeT()
 logy, logx = log10.(DFe ./ FeT), log10.(FeT)
 plt = myloglog(logx, logy)
 a, b = logreg(logx, logy)
+savefig("dissolved_Fe_fraction_from_uniform_DFe_and_FeT.svg")
 
 # Plot using lognormal dist.
-DFe, FeT = make_lognormal_FeT_and_DFe()
+DFe, FeT = make_lognormal_DFe_and_FeT()
 logy, logx = log10.(DFe ./ FeT), log10.(FeT)
 plt = myloglog(logx, logy)
 a, b = logreg(logx, logy)
+savefig("dissolved_Fe_fraction_from_lognormal_DFe_and_FeT.svg")
 
 # Plot using lognormal dist. but such that a ≠ -1
-DFe, FeT = make_lognormal_FeT_and_DFe(n=10000, m_DFe = 10, v_DFe = 800)
+DFe, FeT = make_lognormal_DFe_and_FeT(n=10000, m_DFe = 10, v_DFe = 800)
 logy, logx = log10.(DFe ./ FeT), log10.(FeT)
 plt = myloglog(logx, logy)
 a, b = logreg(logx, logy)
+savefig("dissolved_Fe_fraction_from_lognormal_DFe_and_FeT2.svg")
+
+# Plot using lognormal dist. but by generating PFe rather than FeT
+DFe, PFe = make_lognormal_DFe_and_PFe()
+logy, logx = log10.(DFe ./ (DFe .+ PFe)), log10.(DFe .+ PFe)
+plt = myloglog(logx, logy)
+a, b = logreg(logx, logy)
+savefig("dissolved_Fe_fraction_from_lognormal_DFe_and_PFe.svg")
+

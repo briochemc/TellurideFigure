@@ -97,34 +97,33 @@ function myloglog(logx, logy, title, text)
                 p11, p12, p21, p22, link=:all, layout=l)
 end
 
-
 n = 10000 # number of samples
 
 # Plot as N. Meskhidze
 DFe, FeT = make_uniform_DFe_and_FeT()
 logy, logx = log10.(DFe ./ FeT), log10.(FeT)
 plt = myloglog(logx, logy, "Correlation between DFe/FeT and FeT", "Uniform (DFe, FeT)")
-# savefig("dissolved_Fe_fraction_from_uniform_DFe_and_FeT.svg")
+#savefig("dissolved_Fe_fraction_from_uniform_DFe_and_FeT.svg")
 savefig("dissolved_Fe_fraction_from_uniform_DFe_and_FeT.png")
 
 # Plot lognormal dist.
 DFe, FeT = make_lognormal_DFe_and_FeT()
 logy, logx = log10.(DFe ./ FeT), log10.(FeT)
 plt = myloglog(logx, logy, "Correlation between DFe/FeT and FeT", "Lognormal (DFe, FeT)")
-# savefig("dissolved_Fe_fraction_from_lognormal_DFe_and_FeT.svg")
+#savefig("dissolved_Fe_fraction_from_lognormal_DFe_and_FeT.svg")
 savefig("dissolved_Fe_fraction_from_lognormal_DFe_and_FeT.png")
 
 # Plot lognormal dist. but such that a ≠ -1
 DFe, FeT = make_lognormal_DFe_and_FeT(n=10000, m_DFe = 10, v_DFe = 800)
 logy, logx = log10.(DFe ./ FeT), log10.(FeT)
 plt = myloglog(logx, logy, "Correlation between DFe/FeT and FeT", "Lognormal (DFe, FeT)")
-# savefig("dissolved_Fe_fraction_from_lognormal_DFe_and_FeT2.svg")
+#savefig("dissolved_Fe_fraction_from_lognormal_DFe_and_FeT2.svg")
 savefig("dissolved_Fe_fraction_from_lognormal_DFe_and_FeT2.png")
 
 # Plot lognormal dist. but by generating PFe rather than FeT
 DFe, PFe = make_lognormal_DFe_and_PFe()
 logy, logx = log10.(DFe ./ (DFe .+ PFe)), log10.(DFe .+ PFe)
 plt = myloglog(logx, logy, "Correlation between DFe/FeT and FeT", "Lognormal (DFe, PFe)")
-# savefig("dissolved_Fe_fraction_from_lognormal_DFe_and_PFe.svg")
+#savefig("dissolved_Fe_fraction_from_lognormal_DFe_and_PFe.svg")
 savefig("dissolved_Fe_fraction_from_lognormal_DFe_and_PFe.png")
 
